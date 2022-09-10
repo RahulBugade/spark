@@ -1,0 +1,30 @@
+from pyspark.sql import *
+from pyspark.sql.functions import *
+
+spark = SparkSession.builder.master("local[*]").appName("test").getOrCreate()
+sc = spark.sparkContext
+
+
+# You might need to set these
+# sc._jsc.hadoopConfiguration().set("fs.s3n.awsAccessKeyId", "<AWS_KEY>")
+# sc._jsc.hadoopConfiguration().set("fs.s3n.awsSecretAccessKey", "<AWS_SECRET>")
+
+# Set options below
+sfOptions = {
+  "sfURL" : "jt49810.ap-southeast-1.snowflakecomputing.com",
+  "sfUser" : "RAHULBUGADE",
+  "sfPassword" : "Rahul@705212",
+  "sfDatabase" : "SNOWFLAKE_SAMPLE_DATA",
+  "sfSchema" : "TPCH_SF1",
+  "sfWarehouse" : "SWH"
+}
+#SNOWFLAKE_SAMPLE_DATA SUPPLIER (TPCH_SF1)
+
+SNOWFLAKE_SOURCE_NAME = "net.snowflake.spark.snowflake"
+#net\snowflake\spark\snowflake
+df = spark.read.format(SNOWFLAKE_SOURCE_NAME) \
+  .options(**sfOptions) \
+  .option("query",  "select * from CUSTOMER")\
+  .option("autopushdown", "off") \
+  .load()
+df.show()
